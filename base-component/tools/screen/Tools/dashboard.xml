@@ -36,7 +36,7 @@ along with this software (see the LICENSE.md file). If not, see
                 </box-body>
             </container-box>
             <section name="RestApiSection"><actions>
-                <set field="restUrl" from="sri.buildUrl('/rest').url"/>
+                <set field="restUrl" from="sri.buildUrl('/rest').url-'/rest'"/>
                 <set field="rootResources" from="ec.service.restApi.getFreshRootResources()"/>
 
                 <set field="masterEntityNameList" from="ec.entity.getAllEntityNamesWithMaster()"/>
