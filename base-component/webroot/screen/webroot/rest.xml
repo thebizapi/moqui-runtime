@@ -19,60 +19,6 @@ along with this software (see the LICENSE.md file). If not, see
     <!-- NOTE: the api_key transition was removed because there is no good use case, just use cases that are less secure and poorly thought through -->
     <!-- NOTE: the moquiSessionToken transition was removed for security reasons, it opened a vector in a CSRF attack to acquire the session token at any time -->
 
-    <always-actions>
-        <!-- TODO: In the future use https://github.com/acetousk/public-suffixes -->
-        <set field="domain" from="ec.web.getHostName(false)"/>
-        <set field="domainLower" from="domain.toLowerCase()"/>
-        <set field="domainSuffixLength" from="null"/>
-        <if condition="domainLower.endsWith('.com')"><then><set field="domainSuffixLength" from="4"/></then>
-            <else-if condition="domainLower.endsWith('.org')"><set field="domainSuffixLength" from="4"/></else-if>
-            <else-if condition="domainLower.endsWith('.net')"><set field="domainSuffixLength" from="4"/></else-if>
-            <else-if condition="domainLower.endsWith('.co')"><set field="domainSuffixLength" from="3"/></else-if>
-            <else-if condition="domainLower.endsWith('.io')"><set field="domainSuffixLength" from="3"/></else-if>
-            <else-if condition="domainLower.endsWith('.ai')"><set field="domainSuffixLength" from="3"/></else-if>
-            <else-if condition="domainLower.endsWith('.app')"><set field="domainSuffixLength" from="4"/></else-if>
-            <else-if condition="domainLower.endsWith('.dev')"><set field="domainSuffixLength" from="4"/></else-if>
-            <else-if condition="domainLower.endsWith('.tech')"><set field="domainSuffixLength" from="5"/></else-if>
-            <else-if condition="domainLower.endsWith('.xyz')"><set field="domainSuffixLength" from="4"/></else-if>
-            <else-if condition="domainLower.endsWith('.store')"><set field="domainSuffixLength" from="6"/></else-if>
-            <else-if condition="domainLower.endsWith('.shop')"><set field="domainSuffixLength" from="5"/></else-if>
-            <else-if condition="domainLower.endsWith('.website')"><set field="domainSuffixLength" from="8"/></else-if>
-            <else-if condition="domainLower.endsWith('.cloud')"><set field="domainSuffixLength" from="6"/></else-if>
-            <else-if condition="domainLower.endsWith('.tv')"><set field="domainSuffixLength" from="3"/></else-if>
-            <else-if condition="domainLower.endsWith('.software')"><set field="domainSuffixLength" from="9"/></else-if>
-            <else-if condition="domainLower.endsWith('.host')"><set field="domainSuffixLength" from="5"/></else-if>
-            <else-if condition="domainLower=='localhost'"><set field="domainSuffixLength" from="9"/></else-if>
-            <else-if condition="domainLower.endsWith('.localhost')"><set field="domainSuffixLength" from="10"/></else-if>
-            <else-if condition="domainLower.endsWith('.local')"><set field="domainSuffixLength" from="6"/></else-if>
-            <else><return error="true" message="Domain ${domainLower} does not end with a supported tld. Please contact support at support@thebizapi.com."/></else>
-        </if>
-        <set field="domainTrimmed" from="domain.substring(0, domain.length() - domainSuffixLength)"/>
-        <set field="subdomains" from="[]"/>
-        <if condition="!domainTrimmed.contains('.')"><then><set field="subdomains" from="[domainTrimmed]"/></then>
-            <else><set field="subdomains" from="(domainTrimmed.split('\\.') as Collection).pop()"/></else></if>
-        <set field="pseudoOrganizationId" from="subdomains[-1]"/>
-        <set field="organization" from="ec.entity.find('mantle.party.Party').condition(ec.entity.conditionFactory
-                    .makeCondition('pseudoId', org.moqui.entity.EntityCondition.ComparisonOperator.EQUALS, pseudoOrganizationId).ignoreCase()).useCache().disableAuthz().one()"/>
-        <if condition="organization == null">
-            <return error="true" message="Organization ${pseudoOrganizationId} not found. Login to your account to see your available organizations."/>
-        </if>
-        <set field="ec.web.sessionAttributes.domainOrgId" from="organization.partyId"/>
-
-
-        <!--        <set field="subdomainList" from="ec.web.getSubdomainList()"/>-->
-        <!--        <log level="warn" message="subdomainList: ${subdomainList}"/>-->
-        <!--        <if condition="subdomainList.size() &gt; 2"-->
-    </always-actions>
-
-    <transition name="v1" read-only="true">
-        <actions><script>ec.web.handleServiceRestCall(sri.screenUrlInfo.extraPathNameList)</script></actions>
-        <default-response type="none"/>
-    </transition>
-    <transition name="service.swagger" read-only="true" method="get">
-        <actions><script>org.moqui.impl.util.RestSchemaUtil.handleServiceRestSwagger(ec, sri.screenUrlInfo.extraPathNameList, "/v1")</script></actions>
-        <default-response type="none"/>
-    </transition>
-
     <widgets><!-- this should never be viewed... --></widgets>
 
 </screen>
